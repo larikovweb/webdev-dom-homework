@@ -1,10 +1,17 @@
+const commentsArray = localStorage.getItem('comments')
+  ? JSON.parse(localStorage.getItem('comments'))
+  : [];
+
+const onSaveLocaleStorage = (key, array) => {
+  localStorage.setItem(key, JSON.stringify(array));
+};
 class CommentForm {
   constructor(element, commentList) {
     if (!(element instanceof HTMLElement && commentList instanceof HTMLElement)) {
       throw new Error('Element is not an HTMLElement');
     }
     this.commentList = commentList;
-    this.value = { name: '', comment: '', date: '' };
+    this.value = { name: '', comment: '', date: '', like: { count: 0, active: false } };
     this.element = element;
     this.isValid = false;
     this.input = this.element.querySelector('input');
@@ -17,10 +24,11 @@ class CommentForm {
     this.textarea.addEventListener('input', this.onChange.bind(this));
     this.input.focus();
   }
-
   onSubmit() {
     if (!this.isValid) return;
     this.value.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
+    commentsArray.push(this.value);
+    onSaveLocaleStorage('comments', commentsArray);
     const newComment = new Comment(this.value).render();
     this.commentList.appendChild(newComment);
     this.reset();
@@ -49,8 +57,13 @@ class CommentForm {
     this.isValid = false;
     this.disableBtn();
   }
+  renderComments() {
+    commentsArray.forEach((comment) => {
+      const newComment = new Comment(comment).render();
+      this.commentList.appendChild(newComment);
+    });
+  }
 }
-
 class Comment {
   constructor(value) {
     this.value = value;
@@ -59,9 +72,8 @@ class Comment {
     return Comment.commentTemplate(this.value);
   }
 }
-
 Comment.commentTemplate = (value) => {
-  const { name, comment, date } = value;
+  const { name, comment, date, like } = value;
   const wrapper = document.createElement('div');
   wrapper.classList.add('comment');
   wrapper.innerHTML = `
@@ -74,8 +86,8 @@ Comment.commentTemplate = (value) => {
   </div>
   <div class="comment-footer">
     <div class="likes">
-      <span class="likes-counter">0</span>
-      <button class="like-button"></button>
+      <span class="likes-counter">${like.count}</span>
+      <button class="like-button ${like.active && '-active-like'}"></button>
     </div>
   </div>
   `;
@@ -84,9 +96,16 @@ Comment.commentTemplate = (value) => {
   const likeButton = wrapper.querySelector('.like-button');
   likeButton.addEventListener('click', () => {
     likeButton.classList.toggle('-active-like');
-    likeButton.classList.contains('-active-like')
-      ? likesCounter.textContent++
-      : likesCounter.textContent--;
+    if (likeButton.classList.contains('-active-like')) {
+      like.active = true;
+      like.count++;
+      likesCounter.textContent++;
+    } else {
+      like.active = false;
+      like.count--;
+      likesCounter.textContent--;
+    }
+    onSaveLocaleStorage('comments', commentsArray);
   });
 
   return wrapper;
@@ -96,3 +115,4 @@ const commentList = document.querySelector('.comments');
 const commentForm = document.querySelector('.add-form');
 
 const commentClass = new CommentForm(commentForm, commentList);
+commentClass.renderComments();
