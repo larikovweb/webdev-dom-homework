@@ -2,8 +2,11 @@ const commentsArray = localStorage.getItem('comments')
   ? JSON.parse(localStorage.getItem('comments'))
   : [];
 
-const onSaveLocaleStorage = (key, array) => {
+const saveLocaleStorage = (key, array) => {
   localStorage.setItem(key, JSON.stringify(array));
+};
+const protectionInnerHTML = (text) => {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 };
 class CommentForm {
   constructor(element, commentList) {
@@ -28,11 +31,17 @@ class CommentForm {
     if (!this.isValid) return;
     this.value.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
     commentsArray.push(this.value);
-    onSaveLocaleStorage('comments', commentsArray);
+    saveLocaleStorage('comments', commentsArray);
     const newComment = new Comment(this.value).render();
     this.commentList.appendChild(newComment);
     this.reset();
     this.input.focus();
+  }
+  update() {
+    this.input.value = this.value.name;
+    this.textarea.value = this.value.comment;
+    this.isValid = this.value.name && this.value.comment;
+    this.disableBtn();
   }
   onChange() {
     this.value.name = this.input.value;
@@ -51,7 +60,7 @@ class CommentForm {
       : this.button.setAttribute('disabled', true);
   }
   reset() {
-    this.value = { name: '', comment: '', date: '' };
+    this.value = { name: '', comment: '', date: '', like: { count: 0, active: false } };
     this.input.value = '';
     this.textarea.value = '';
     this.isValid = false;
@@ -77,12 +86,13 @@ Comment.commentTemplate = (value) => {
   const wrapper = document.createElement('div');
   wrapper.classList.add('comment');
   wrapper.innerHTML = `
+  <i class="comment-remove"></i>
   <div class="comment-header">
-    <div>${name}</div>
+    <div>${protectionInnerHTML(name)}</div>
     <div>${date}</div>
   </div>
   <div class="comment-body">
-    <div class="comment-text">${comment}</div>
+    <pre class="comment-text">${protectionInnerHTML(comment)}</pre>
   </div>
   <div class="comment-footer">
     <div class="likes">
@@ -94,7 +104,16 @@ Comment.commentTemplate = (value) => {
 
   const likesCounter = wrapper.querySelector('.likes-counter');
   const likeButton = wrapper.querySelector('.like-button');
-  likeButton.addEventListener('click', () => {
+  const removeButton = wrapper.querySelector('.comment-remove');
+
+  const onAnswer = () => {
+    commentClass.value.comment = `> ${comment} \r\n ${name},`;
+    commentClass.update();
+    commentClass.input.focus();
+  };
+
+  const onLike = (e) => {
+    e.stopPropagation();
     likeButton.classList.toggle('-active-like');
     if (likeButton.classList.contains('-active-like')) {
       like.active = true;
@@ -105,8 +124,19 @@ Comment.commentTemplate = (value) => {
       like.count--;
       likesCounter.textContent--;
     }
-    onSaveLocaleStorage('comments', commentsArray);
-  });
+    saveLocaleStorage('comments', commentsArray);
+  };
+
+  const onRemove = (e) => {
+    e.stopPropagation();
+    wrapper.remove();
+    commentsArray.splice(commentsArray.indexOf(value), 1);
+    saveLocaleStorage('comments', commentsArray);
+  };
+
+  wrapper.addEventListener('click', onAnswer);
+  likeButton.addEventListener('click', onLike);
+  removeButton.addEventListener('click', onRemove);
 
   return wrapper;
 };
