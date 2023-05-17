@@ -14,6 +14,18 @@ let commentsArray = [];
 const protectionInnerHTML = (text) => {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 };
+
+const showMessage = (mess, isShow = true, parent = commentList) => {
+  const message = document.createElement('div');
+  if (!isShow) {
+    parent.querySelector('.message').remove();
+    return;
+  }
+  message.classList.add('message');
+  message.innerHTML = mess;
+  parent.appendChild(message);
+};
+
 class CommentForm {
   constructor(element, commentList) {
     if (!(element instanceof HTMLElement && commentList instanceof HTMLElement)) {
@@ -36,6 +48,8 @@ class CommentForm {
   onSubmit() {
     if (!this.isValid) return;
     this.value.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
+    showMessage('Комментарий добавляется...');
+    this.button.setAttribute('disabled', true);
     useHTTP(
       'POST',
       _apiUrl,
@@ -45,6 +59,8 @@ class CommentForm {
         this.commentList.appendChild(newComment);
         this.reset();
         this.input.focus();
+        this.button.removeAttribute('disabled');
+        showMessage(null, false);
       },
       this.value,
     );
@@ -95,7 +111,6 @@ class Comment {
   }
 }
 Comment.commentTemplate = (value) => {
-  console.log(value);
   let { author, text, date, likes, isLiked } = value;
   const wrapper = document.createElement('div');
   wrapper.classList.add('comment');
@@ -157,8 +172,10 @@ const commentList = document.querySelector('.comments');
 const commentForm = document.querySelector('.add-form');
 
 const commentClass = new CommentForm(commentForm, commentList);
+
+showMessage('Идет загрузка комментариев...');
 useHTTP('GET', _apiUrl, (data) => {
   commentsArray = data.comments;
-  console.log(commentsArray);
   commentClass.renderComments();
+  showMessage(null, false);
 });
