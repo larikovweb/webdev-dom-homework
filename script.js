@@ -5,8 +5,21 @@ const useHTTP = (method, url, func, body) => {
     method: method,
     body: JSON.stringify(body),
   })
-    .then((res) => res.json())
-    .then(func);
+    .then((res) => {
+      if (res.status === 500) {
+        throw new Error('Ошибка сервера, попробуйте позже');
+      } else if (res.status === 400) {
+        throw new Error('Имя и комментарий должны быть не менее 3 символов');
+      } else {
+        return res.json();
+      }
+    })
+    .then(func)
+    .catch((err) => {
+      console.warn(err);
+      alert(err.message);
+      func();
+    });
 };
 
 let commentsArray = [];
@@ -50,15 +63,19 @@ class CommentForm {
     this.value.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
     showMessage('Комментарий добавляется...');
     this.button.setAttribute('disabled', true);
+    this.element.style.display = 'none';
     useHTTP(
       'POST',
       _apiUrl,
       (data) => {
-        commentsArray = data.comments;
-        const newComment = new Comment(this.value).render();
-        this.commentList.appendChild(newComment);
-        this.reset();
-        this.input.focus();
+        if (data) {
+          commentsArray = data.comments;
+          const newComment = new Comment(this.value).render();
+          this.commentList.appendChild(newComment);
+          this.reset();
+          this.input.focus();
+        }
+        this.element.style.display = 'flex';
         this.button.removeAttribute('disabled');
         showMessage(null, false);
       },
