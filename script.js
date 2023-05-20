@@ -17,7 +17,7 @@ const useHTTP = (method, url, func, body) => {
     .then(func)
     .catch((err) => {
       console.warn(err);
-      alert(err.message);
+      alert('Кажется что-то пошло не так, попробуйте позже');
       func();
     });
 };
