@@ -33,7 +33,7 @@ class CommentForm {
       _apiUrl,
       (data) => {
         if (data) {
-          commentsArray.push(data.comments);
+          commentsArray.push(this.value);
           const newComment = new Comment(this.value).render();
           this.commentList.appendChild(newComment);
           this.reset();
