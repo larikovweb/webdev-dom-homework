@@ -1,11 +1,6 @@
 import { commentsArray } from './data.js';
 import { protectionInnerHTML } from './fn.js';
-import CommentForm from './CommentForm.js';
-
-const commentList = document.querySelector('.comments');
-const commentForm = document.querySelector('.add-form');
-
-const commentClass = new CommentForm(commentForm, commentList);
+import { commentClass } from './CommentForm.js';
 
 class Comment {
   constructor(value) {

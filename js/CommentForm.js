@@ -84,4 +84,9 @@ class CommentForm {
   }
 }
 
+const commentList = document.querySelector('.comments');
+const commentForm = document.querySelector('.add-form');
+
+export const commentClass = new CommentForm(commentForm, commentList);
+
 export default CommentForm;
