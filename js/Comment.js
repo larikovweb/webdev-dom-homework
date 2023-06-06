@@ -1,6 +1,6 @@
 import { commentsArray } from './data.js';
 import { protectionInnerHTML } from './fn.js';
-import { commentClass } from './CommentForm.js';
+import { commentFormClass } from './CommentForm.js';
 
 class Comment {
   constructor(value) {
@@ -36,9 +36,9 @@ Comment.commentTemplate = (value) => {
   const removeButton = wrapper.querySelector('.comment-remove');
 
   const onAnswer = () => {
-    commentClass.value.text = `> ${text} \r\n ${author.name},`;
-    commentClass.update();
-    commentClass.input.focus();
+    commentFormClass.value.text = `> ${text} \r\n ${author.name},`;
+    commentFormClass.update();
+    commentFormClass.input.focus();
   };
 
   const onLike = (e) => {

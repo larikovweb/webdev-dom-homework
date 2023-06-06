@@ -1,5 +1,5 @@
 import { commentsArray } from './data.js';
-import { useHTTP, _apiUrl } from './api.js';
+import { sendComment, _apiUrl } from './api.js';
 import { showMessage } from './fn.js';
 import Comment from './Comment.js';
 
@@ -22,29 +22,30 @@ class CommentForm {
     this.textarea.addEventListener('input', this.onChange.bind(this));
     this.input.focus();
   }
+  onToggleForm() {
+    this.element.style.display = this.element.style.display === 'none' ? 'flex' : 'none';
+  }
+  onToggleList() {
+    this.commentList.style.display = this.commentList.style.display === 'none' ? 'flex' : 'none';
+  }
   onSubmit() {
     if (!this.isValid) return;
     this.value.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
     showMessage('Комментарий добавляется...', true, this.commentList);
     this.button.setAttribute('disabled', true);
     this.element.style.display = 'none';
-    useHTTP(
-      'POST',
-      _apiUrl,
-      (data) => {
-        if (data) {
-          commentsArray.push(this.value);
-          const newComment = new Comment(this.value).render();
-          this.commentList.appendChild(newComment);
-          this.reset();
-          this.input.focus();
-        }
-        this.element.style.display = 'flex';
-        this.button.removeAttribute('disabled');
-        showMessage(null, false, this.commentList);
-      },
-      this.value,
-    );
+    sendComment((data) => {
+      if (data) {
+        commentsArray.push(this.value);
+        const newComment = new Comment(this.value).render();
+        this.commentList.appendChild(newComment);
+        this.reset();
+        this.input.focus();
+      }
+      this.element.style.display = 'flex';
+      this.button.removeAttribute('disabled');
+      showMessage(null, false, this.commentList);
+    }, this.value);
   }
   update() {
     this.input.value = this.value.author.name;
@@ -87,6 +88,6 @@ class CommentForm {
 const commentList = document.querySelector('.comments');
 const commentForm = document.querySelector('.add-form');
 
-export const commentClass = new CommentForm(commentForm, commentList);
+export const commentFormClass = new CommentForm(commentForm, commentList);
 
 export default CommentForm;

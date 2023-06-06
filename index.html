@@ -9,7 +9,10 @@
   <body>
     <div class="container">
       <ul class="comments"></ul>
-      <div class="add-form">
+      <span class="auth-btn" style="margin-top: 20px"
+        >Чтобы добавить комментарий, <a href="#">Авторизуйтесь</a></span
+      >
+      <div style="display: none" class="add-form">
         <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
         <textarea
           type="textarea"
@@ -21,11 +24,29 @@
           <button disabled class="add-form-button">Написать</button>
         </div>
       </div>
+      <div
+        style="
+          display: none;
+          flex-direction: column;
+          gap: 4px;
+          padding: 20px;
+          background-color: #fff;
+          border-radius: 10px;
+        "
+        class="auth-form"
+      >
+        <input style="display: none" type="text" name="name" placeholder="Name" />
+        <input type="text" name="login" placeholder="Login" />
+        <input type="password" name="password" placeholder="Password" />
+        <button class="auth-form-button" disabled>Войти</button>
+        <a href="#" style="text-align: center; color: #000; margin-top: 8px">Нет аккаунта?</a>
+      </div>
     </div>
   </body>
 
   <script type="module" src="./js/data.js"></script>
   <script type="module" src="./js/api.js"></script>
+  <script type="module" src="./js/AuthForm.js"></script>
   <script type="module" src="./js/Comment.js"></script>
   <script type="module" src="./js/CommentForm.js"></script>
   <script type="module" src="./js/index.js"></script>

@@ -1,13 +1,21 @@
 import { commentsArray } from './data.js';
-import { useHTTP, _apiUrl } from './api.js';
+import { fetchAllComments, _apiUrl } from './api.js';
 import { showMessage } from './fn.js';
-import { commentClass } from './CommentForm.js';
+import { commentFormClass } from './CommentForm.js';
+import { formAuthClass } from './AuthForm.js';
 
 const commentList = document.querySelector('.comments');
+const authBtn = document.querySelector('.auth-btn');
 
 showMessage('Идет загрузка комментариев...', true, commentList);
-useHTTP('GET', _apiUrl, (data) => {
+
+fetchAllComments((data) => {
   commentsArray.push(...data.comments);
-  commentClass.renderComments();
+  commentFormClass.renderComments();
   showMessage(null, false, commentList);
+});
+
+authBtn.addEventListener('click', () => {
+  authBtn.style.display = 'none';
+  formAuthClass.onToggleForm();
 });
