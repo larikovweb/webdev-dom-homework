@@ -1,7 +1,7 @@
 import { commentsArray } from './data.js';
 import { protectionInnerHTML } from './fn.js';
 import { commentFormClass } from './CommentForm.js';
-
+import { format } from 'date-fns';
 class Comment {
   constructor(value) {
     this.value = value;
@@ -18,7 +18,7 @@ Comment.commentTemplate = (value) => {
   <i class="comment-remove"></i>
   <div class="comment-header">
     <div>${protectionInnerHTML(author.name)}</div>
-    <div>${date}</div>
+    <div>${format(new Date(date), 'yyyy-MM-dd hh.mm.ss')}</div>
   </div>
   <div class="comment-body">
     <pre class="comment-text">${protectionInnerHTML(text)}</pre>
